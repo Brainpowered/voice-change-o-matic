@@ -128,6 +128,7 @@ function visualize() {
 
   var visualSetting = visualSelect.value;
   console.log(visualSetting);
+  console.log(audioCtx.sampleRate);
 
   if(visualSetting == "sinewave") {
     analyser.fftSize = 2048;
@@ -175,24 +176,59 @@ function visualize() {
     draw();
 
   } else if(visualSetting == "frequencybars") {
-    analyser.fftSize = 256;
+    analyser.fftSize = 512;
     var bufferLengthAlt = analyser.frequencyBinCount;
     console.log(bufferLengthAlt);
     var dataArrayAlt = new Uint8Array(bufferLengthAlt);
 
     canvasCtx.clearRect(0, 0, WIDTH, HEIGHT);
 
+    var context = canvasCtx;
+
+    var drawIndicator = function(){
+      var vertSpacing = WIDTH/20;
+      var xPos =0;
+      var feqBar = 0;
+
+// font settings
+                canvasCtx.fillStyle = '#000000';
+                canvasCtx.font = '10px sans-serif';
+
+          // line drawing settings
+              	canvasCtx.lineWidth = 1;
+              	canvasCtx.lineCap = 'round';
+
+      while(xPos<WIDTH) {
+        // draw font
+          canvasCtx.fillText(`${feqBar++}k`, xPos, HEIGHT/2);
+
+        // draw lines
+        	canvasCtx.beginPath();
+        	canvasCtx.moveTo(xPos, 0);
+          //canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
+        	canvasCtx.lineTo(xPos, HEIGHT);
+        	context.stroke();
+
+        // advance
+          xPos += vertSpacing;
+      }
+
+    };
+
     var drawAlt = function() {
       drawVisual = requestAnimationFrame(drawAlt);
 
       analyser.getByteFrequencyData(dataArrayAlt);
 
-      canvasCtx.fillStyle = 'rgb(0, 0, 0)';
-      canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+      // canvasCtx.fillStyle = 'rgb(0, 0, 0)';
+      // canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      var barWidth = (WIDTH / bufferLengthAlt) * 2.5;
+      var barWidth = (WIDTH / bufferLengthAlt) * 1.0;
       var barHeight;
       var x = 0;
+
+      context.fillRect(0, 0, WIDTH, HEIGHT);
+      drawIndicator();
 
       for(var i = 0; i < bufferLengthAlt; i++) {
         barHeight = dataArrayAlt[i];
@@ -200,8 +236,36 @@ function visualize() {
         canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
         canvasCtx.fillRect(x,HEIGHT-barHeight/2,barWidth,barHeight/2);
 
-        x += barWidth + 1;
+        x += barWidth;// + 1;
       }
+
+
+      //context.translate(0, height);
+      // context.scale(1, -1);
+      //
+      context.fillStyle = '#f6f6f6';
+      //context.fillRect(0, 0, WIDTH, HEIGHT);
+
+      var left = 0,
+      		prev_stat = dataArrayAlt[0],
+      		move_left_by = (WIDTH / bufferLengthAlt),
+          barHeight;
+
+      for(var i = 0; i < bufferLengthAlt; i++) {
+         barHeight = dataArrayAlt[i];//Math.max(0,HEIGHT-dataArrayAlt[i])/2 + (HEIGHT/2);
+
+      	canvasCtx.beginPath();
+      	canvasCtx.moveTo(left, prev_stat/2);
+        //canvasCtx.fillStyle = 'rgb(' + (barHeight+100) + ',50,50)';
+      	canvasCtx.lineTo(left+move_left_by, barHeight/2);
+      	canvasCtx.lineWidth = 1;
+      	canvasCtx.lineCap = 'round';
+      	context.stroke();
+
+      	prev_stat = barHeight;
+      	left += move_left_by;
+      }
+
     };
 
     drawAlt();
