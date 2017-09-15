@@ -186,8 +186,11 @@ function visualize() {
     var context = canvasCtx;
 
     var drawIndicator = function(){
-      var vertSpacing = WIDTH/20;
-      var xPos =0;
+      var divisions = 20;
+      // NOTE THAT the Maximim frequency measureable be will no more than half the sample rate.
+      var freqPerDivision = audioCtx.sampleRate/2 /20;
+      var vertSpacing = WIDTH/divisions; //audioCtx.sampleRate
+      var xPos = 0;
       var feqBar = 0;
 
 // font settings
