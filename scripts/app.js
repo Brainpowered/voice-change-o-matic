@@ -176,7 +176,7 @@ function visualize() {
     draw();
 
   } else if(visualSetting == "frequencybars") {
-    analyser.fftSize = 512;
+    analyser.fftSize = 1024;
     var bufferLengthAlt = analyser.frequencyBinCount;
     console.log(bufferLengthAlt);
     var dataArrayAlt = new Uint8Array(bufferLengthAlt);
@@ -185,6 +185,7 @@ function visualize() {
 
     var context = canvasCtx;
 
+    // Routine to Draw some screen lines and text (scilloscope style)
     var drawIndicator = function(){
       var divisions = 20;
       // NOTE THAT the Maximim frequency measureable be will no more than half the sample rate.
@@ -226,6 +227,10 @@ function visualize() {
       // canvasCtx.fillStyle = 'rgb(0, 0, 0)';
       // canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
 
+      /**
+        DRAW BAR GRAPH
+      **/
+
       var barWidth = (WIDTH / bufferLengthAlt) * 1.0;
       var barHeight;
       var x = 0;
@@ -243,6 +248,9 @@ function visualize() {
       }
 
 
+      /**
+        DRAW LINE GRAPH
+      **/
       //context.translate(0, height);
       // context.scale(1, -1);
       //
